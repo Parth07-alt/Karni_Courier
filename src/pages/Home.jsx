@@ -69,13 +69,13 @@ const Home = () => {
                   <option value="bluedart" style={{ color: '#000' }}>BlueDart</option>
                 </select>
 
-                <div className="input-icon-wrap" style={{ flex: 1, margin: 0 }}>
+                <div className="input-icon-wrap" style={{ flex: 1, margin: 0, width: '100%' }}>
                   <i className="fa-solid fa-magnifying-glass" style={{ color: 'var(--white)' }} />
                   <input 
                     type="text" 
-                    placeholder={cargoCompany === 'karni' ? "Enter Karni Tracking ID..." : "Enter Partner AWB..."} 
+                    placeholder={cargoCompany === 'karni' ? "Enter Tracking ID..." : "Enter AWB..."} 
                     className="form-input"
-                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.3)', color: 'var(--white)', paddingLeft: '40px' }}
+                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.3)', color: 'var(--white)', paddingLeft: '40px', width: '100%', textOverflow: 'ellipsis' }}
                     value={trackingId}
                     onChange={e => setTrackingId(e.target.value)}
                     required

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,6 +8,11 @@ const Navbar = () => {
   const [userDropOpen, setUserDropOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setUserDropOpen(false);
+  }, [location]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -102,8 +107,16 @@ const Navbar = () => {
         </div>
       </nav>
 
+      {/* Mobile Menu Overlay */}
+      {menuOpen && (
+        <div 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 998, backdropFilter: 'blur(2px)' }}
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
       {/* Mobile menu */}
-      <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
+      <div className={`mobile-menu${menuOpen ? ' open' : ''}`} style={{ zIndex: 999 }}>
         <Link to="/" className="nav-link" onClick={() => setMenuOpen(false)}>Home</Link>
         <Link to="/book" className="nav-link" onClick={() => setMenuOpen(false)}>Book Pickup</Link>
         <Link to="/complaint" className="nav-link" onClick={() => setMenuOpen(false)}>Complaint</Link>
