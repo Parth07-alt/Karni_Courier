@@ -737,12 +737,14 @@ input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius:
   :root { --navbar-height: 70px; --container-px: 16px; }
 
   /* Navbar */
-  .navbar-logo { height: 54px; }
-  .navbar-brand-name { font-size: 0.95rem; letter-spacing: -0.3px; }
-  .navbar-brand-slogan { font-size: 0.6rem; }
-  .navbar-brand { gap: 10px; }
+  .navbar-logo { height: 48px; }
+  .navbar-brand-name { font-size: 0.9rem; letter-spacing: -0.3px; }
+  .navbar-brand-slogan { display: none; }
+  .navbar-brand { gap: 8px; flex-shrink: 1; min-width: 0; }
+  .navbar-brand-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .navbar-links { display: none; }
-  .hamburger { display: flex; }
+  .navbar-actions > *:not(.hamburger) { display: none !important; }
+  .hamburger { display: flex; margin-left: auto; }
 
   /* Hero */
   .hero { min-height: auto; padding-top: calc(var(--navbar-height) + 32px); padding-bottom: 48px; }
