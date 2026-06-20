@@ -54,11 +54,10 @@ const Home = () => {
             </p>
             
             {/* Tracking Quick Action */}
-            <div style={{ background: 'rgba(255,255,255,0.1)', padding: 'var(--space-md)', borderRadius: 'var(--radius-lg)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', maxWidth: 480, marginTop: 'var(--space-xl)' }}>
-              <form onSubmit={handleTrack} style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+            <div className="hero-track-wrap">
+              <form onSubmit={handleTrack} className="hero-track-form">
                 <select 
-                  className="form-input" 
-                  style={{ width: '140px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.3)', color: 'var(--white)' }}
+                  className="form-input hero-track-select"
                   value={cargoCompany}
                   onChange={(e) => setCargoCompany(e.target.value)}
                 >
@@ -82,10 +81,11 @@ const Home = () => {
                     required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap', margin: 0 }}>
-                  Track
+                <button type="submit" className="btn btn-primary hero-track-btn">
+                  <i className="fa-solid fa-magnifying-glass" /> Track
                 </button>
               </form>
+
             </div>
           </div>
 

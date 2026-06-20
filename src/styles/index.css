@@ -342,6 +342,34 @@ p { color: var(--text-gray); line-height: 1.75; }
 
 .widget-divider { border: none; border-top: 1px solid var(--border-light); margin: var(--space-md) 0; }
 
+/* Hero Tracking Form */
+.hero-track-wrap {
+  background: rgba(255,255,255,0.1);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  max-width: 500px;
+  margin-top: var(--space-xl);
+  width: 100%;
+}
+.hero-track-form {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: stretch;
+}
+.hero-track-select {
+  width: 130px;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: var(--white);
+}
+.hero-track-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* ===================== STATS BAR ===================== */
 .stats-bar { background: var(--primary-gradient); padding: var(--space-2xl) 0; }
 .stats-bar-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: var(--space-xl); text-align: center; }
@@ -701,41 +729,142 @@ input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius:
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .booking-layout { grid-template-columns: 300px 1fr; }
   .partners-grid { grid-template-columns: repeat(2,1fr); }
+  .hiw-grid { grid-template-columns: repeat(2,1fr); }
+  .services-grid { grid-template-columns: repeat(2,1fr); }
 }
 
 @media (max-width: 768px) {
-  :root { --navbar-height: 90px; --container-px: 16px; }
-  .navbar-logo { height: 72px; }
-  .navbar-brand-name { font-size: 1.15rem; }
-  .navbar-brand-slogan { font-size: 0.68rem; }
+  :root { --navbar-height: 70px; --container-px: 16px; }
+
+  /* Navbar */
+  .navbar-logo { height: 54px; }
+  .navbar-brand-name { font-size: 0.95rem; letter-spacing: -0.3px; }
+  .navbar-brand-slogan { font-size: 0.6rem; }
+  .navbar-brand { gap: 10px; }
+  .navbar-links { display: none; }
+  .hamburger { display: flex; }
+
+  /* Hero */
+  .hero { min-height: auto; padding-top: calc(var(--navbar-height) + 32px); padding-bottom: 48px; }
   .hero-inner { grid-template-columns: 1fr; gap: var(--space-xl); }
-  .booking-widget { padding: var(--space-lg); }
-  .hero-cta { flex-direction: column; align-items: flex-start; }
-  .hero { min-height: auto; padding-top: calc(var(--navbar-height) + 40px); padding-bottom: 60px; }
-  .stats-bar-grid { grid-template-columns: repeat(2,1fr); }
+  .hero-subtitle { font-size: 0.9375rem; }
+  .hero-cta { flex-direction: column; align-items: flex-start; gap: var(--space-sm); }
+  .hero-cta .btn { width: 100%; justify-content: center; }
+
+  /* Tracking form on home page */
+  .hero-track-wrap { max-width: 100%; }
+  .hero-track-form { flex-direction: column; }
+  .hero-track-select { width: 100%; }
+  .hero-track-btn { width: 100%; }
+
+  /* Booking Widget */
+  .booking-widget { padding: var(--space-md); }
+
+  /* Stats */
+  .stats-bar-grid { grid-template-columns: repeat(2,1fr); gap: var(--space-md); }
+  .stat-bar-number { font-size: 1.75rem; }
+
+  /* Services */
   .services-grid { grid-template-columns: 1fr; }
-  .hiw-grid { grid-template-columns: 1fr 1fr; }
+  .service-card { padding: var(--space-lg); }
+
+  /* How it Works */
+  .hiw-grid { grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
   .hiw-step:not(:last-child)::after { display: none; }
+  .hiw-number { width: 44px; height: 44px; font-size: 1.1rem; }
+
+  /* Partners */
+  .partners-grid { grid-template-columns: repeat(2,1fr); }
+  .partner-card { padding: var(--space-lg); }
+
+  /* Forms */
   .form-row { grid-template-columns: 1fr; }
+
+  /* Booking Layout */
   .booking-layout { grid-template-columns: 1fr; }
   .order-summary-card { position: static; }
   .package-options { grid-template-columns: 1fr 1fr; }
-  .date-cards { flex-direction: column; }
+  .date-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); }
+  .date-num { font-size: 1.5rem; }
+
+  /* Step indicator */
+  .step-label { display: none; }
+  .step-connector { max-width: 60px; }
+
+  /* Track page */
   .track-search-box { flex-direction: column; }
+  .track-search-box .btn { width: 100%; }
+  .track-result-card { padding: var(--space-lg); }
+
+  /* Dashboard */
   .dash-stats { grid-template-columns: repeat(3,1fr); }
+  .dash-header { padding: var(--space-xl) 0 var(--space-lg); }
+  .order-card { flex-wrap: wrap; gap: var(--space-sm); padding: var(--space-md); }
+  .order-card-actions { width: 100%; justify-content: flex-end; }
+
+  /* Admin */
   .admin-sidebar { width: 0; overflow: hidden; }
   .admin-main { margin-left: 0; }
   .admin-stat-cards { grid-template-columns: 1fr 1fr; }
-  .footer-grid { grid-template-columns: 1fr; }
-  .footer-bottom { flex-direction: column; gap: var(--space-sm); text-align: center; }
-  .navbar-links { display: none; }
-  .hamburger { display: flex; }
+  .admin-content { padding: var(--space-md); }
+  .admin-topbar { padding: 0 var(--space-md); }
+  .table-card { overflow-x: auto; }
+  .data-table { min-width: 600px; }
+
+  /* Payment */
   .payment-methods { grid-template-columns: 1fr; }
+
+  /* Footer */
+  .footer-grid { grid-template-columns: 1fr; gap: var(--space-xl); }
+  .footer-bottom { flex-direction: column; gap: var(--space-sm); text-align: center; }
+  .footer-logo { height: 72px; }
 }
 
 @media (max-width: 480px) {
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.375rem; }
+  :root { --container-px: 12px; }
+
+  h1 { font-size: 1.65rem; }
+  h2 { font-size: 1.25rem; }
+
+  /* Navbar - even smaller screens */
+  .navbar-brand-name { font-size: 0.8rem; }
+  .navbar-brand-slogan { display: none; }
+  .navbar-logo { height: 46px; }
+  .navbar-brand { gap: 8px; }
+
+  /* Stats */
+  .stats-bar-grid { grid-template-columns: repeat(2,1fr); gap: var(--space-sm); }
+  .stat-bar-number { font-size: 1.4rem; }
+
+  /* How it works — single column on tiny screens */
+  .hiw-grid { grid-template-columns: 1fr; }
+
+  /* Dashboard stats — single col */
   .admin-stat-cards { grid-template-columns: 1fr; }
-  .dash-stats { grid-template-columns: 1fr; }
+  .dash-stats { grid-template-columns: 1fr 1fr; }
+
+  /* Date cards */
+  .date-cards { grid-template-columns: repeat(2,1fr); }
+
+  /* Package options */
+  .package-options { grid-template-columns: 1fr; }
+
+  /* Order card */
+  .order-status-icon { display: none; }
+
+  /* OTP boxes */
+  .otp-box { width: 42px; height: 50px; font-size: 1.25rem; }
+
+  /* Buttons full width in modals */
+  .modal { padding: var(--space-lg); margin: var(--space-sm); }
+  
+  /* Track hero */
+  .track-hero { padding: var(--space-2xl) 0; }
+
+  /* Complaint page contact row */
+  .booking-layout { grid-template-columns: 1fr; }
+
+  /* Hero tracking form */
+  .hero form { flex-direction: column !important; }
+  .hero form select { width: 100% !important; }
 }
