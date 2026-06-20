@@ -49,6 +49,7 @@ const StepSummary = () => {
     const orderData = {
       ...booking,
       userId: user.uid,
+      userEmail: user.email || null,
       awbNumber: awb,
       status: 'pending', // Will update to confirmed after payment
       timeline: [{
@@ -169,7 +170,7 @@ const StepSummary = () => {
           <i className="fa-solid fa-arrow-left" /> Back
         </button>
         <button type="button" className="btn btn-primary btn-lg" onClick={handleConfirmAndPay}>
-          Proceed to Payment <i className="fa-solid fa-credit-card" style={{ marginLeft: 8 }} />
+          Proceed to Payment <i className="fa-solid fa-credit-card" />
         </button>
       </div>
     </div>

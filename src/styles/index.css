@@ -113,6 +113,7 @@ p { color: var(--text-gray); line-height: 1.75; }
   white-space: nowrap;
   cursor: pointer;
   border: none;
+  flex-shrink: 0;
 }
 .btn-primary {
   background: var(--primary-gradient);
@@ -468,7 +469,7 @@ p { color: var(--text-gray); line-height: 1.75; }
 .step-section-title { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-medium); margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm); }
 .step-section-title i { color: var(--primary); width: 16px; }
 
-.step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--border-light); }
+.step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--border-light); flex-wrap: wrap; gap: var(--space-md); }
 
 /* Package Options */
 .package-options { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--space-sm); }
@@ -638,7 +639,7 @@ input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius:
 .otp-box:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(204,0,0,0.1); outline: none; }
 
 /* ===================== PAYMENT PAGE ===================== */
-.payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-xl); }
+.payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); margin-bottom: var(--space-xl); }
 .pay-method {
   border: 2px solid var(--border); border-radius: var(--radius-lg);
   padding: var(--space-lg); cursor: pointer; transition: var(--transition); text-align: center;

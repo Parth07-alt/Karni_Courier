@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
+import { sendOrderConfirmationEmail } from '../utils/emailService';
 
 const Payment = () => {
   const { user } = useAuth();
@@ -51,6 +52,10 @@ const Payment = () => {
           { status: 'confirmed', timestamp: new Date(), note: `Payment successful (${method}). Booking confirmed.` }
         ]
       });
+      
+      // Send EmailJS Confirmation Email
+      await sendOrderConfirmationEmail(order, user.email);
+
       navigate(`/dashboard`, { state: { paid: true } });
     } catch (err) {
       console.error(err);
@@ -123,6 +128,12 @@ const Payment = () => {
               <h4>UPI QR Code</h4>
               <p>Google Pay, PhonePe, Paytm</p>
             </div>
+
+            <div className={`pay-method ${method === 'cod' ? 'active' : ''}`} onClick={() => setMethod('cod')}>
+              <i className="fa-solid fa-money-bill-wave pay-method-icon" />
+              <h4>Cash on Delivery</h4>
+              <p>Pay when you receive</p>
+            </div>
           </div>
 
           {method === 'upi' && (
@@ -142,6 +153,17 @@ const Payment = () => {
             <button className="btn btn-primary btn-block btn-lg" onClick={handleRazorpay} disabled={processing}>
               <i className="fa-solid fa-lock" /> Pay Securely ₹ {order.estimatedPrice}
             </button>
+          )}
+
+          {method === 'cod' && (
+            <div style={{ textAlign: 'center', marginTop: 'var(--space-md)' }}>
+              <p style={{ color: 'var(--text-gray)', marginBottom: 'var(--space-md)' }}>
+                You will pay <strong style={{ color: 'var(--text-dark)' }}>₹ {order.estimatedPrice}</strong> in cash at the time of delivery.
+              </p>
+              <button className="btn btn-primary btn-block btn-lg" onClick={() => confirmOrderPayment('COD')} disabled={processing}>
+                <i className="fa-solid fa-truck" /> Confirm Cash on Delivery
+              </button>
+            </div>
           )}
 
         </div>

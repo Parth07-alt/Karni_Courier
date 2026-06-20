@@ -4,6 +4,7 @@ import { db } from '../../firebase';
 import { formatDateTime, getBadgeClass, STATUS_LABELS, STATUS_FLOW } from '../../utils/awbGenerator';
 import AdminLayout from './AdminLayout';
 import { useAuth } from '../../context/AuthContext';
+import { sendPickupConfirmationEmail, sendCancellationEmail } from '../../utils/emailService';
 
 const AdminDashboard = () => {
   const { initials, displayName } = useAuth();
@@ -54,6 +55,11 @@ const AdminDashboard = () => {
         status: newStatus,
         timeline: [...(currentTimeline || []), newTimelineEvent]
       });
+
+      const updatedOrder = orders.find(o => o.id === orderId);
+      if (newStatus === 'cancelled' && updatedOrder) {
+        await sendCancellationEmail(updatedOrder, note);
+      }
       
       // Update local state
       setOrders(orders.map(o => o.id === orderId ? {
@@ -84,6 +90,12 @@ const AdminDashboard = () => {
         cargoCompany: pickupModal.cargo,
         timeline: [...pickupModal.timeline, newTimelineEvent]
       });
+
+      const updatedOrder = orders.find(o => o.id === pickupModal.orderId);
+      if (updatedOrder) {
+        // We pass the updated order data. It relies on the emailService pulling to_email from updatedOrder.sender.email
+        await sendPickupConfirmationEmail(updatedOrder, pickupModal.cargo, pickupModal.awb);
+      }
 
       setOrders(orders.map(o => o.id === pickupModal.orderId ? {
         ...o, status: 'pickedup', cargoAwb: pickupModal.awb, cargoCompany: pickupModal.cargo, timeline: [...(o.timeline || []), newTimelineEvent]
@@ -239,12 +251,12 @@ const AdminDashboard = () => {
 
             <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
               <button 
-                className="btn btn-secondary btn-block" 
+                className="btn btn-secondary" style={{ flex: 1 }}
                 onClick={() => setPickupModal({ open: false, orderId: null, awb: '', cargo: '', timeline: [] })}
               >
                 Cancel
               </button>
-              <button className="btn btn-primary btn-block" onClick={submitPickupModal}>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={submitPickupModal}>
                 Confirm Pickup
               </button>
             </div>
