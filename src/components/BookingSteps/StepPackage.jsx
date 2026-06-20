@@ -106,7 +106,7 @@ const StepPackage = () => {
                 checked={booking.insurance}
                 onChange={e => updateBooking({ insurance: e.target.checked })}
               />
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Protect my package (Insurance)</div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--text-gray)' }}>
                   Add 1% of package value (min ₹50) for total coverage against loss or damage.

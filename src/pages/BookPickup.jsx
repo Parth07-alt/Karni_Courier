@@ -17,6 +17,11 @@ const BookPickupContent = () => {
     if (location.state?.toPin) updateReceiver({ pincode: location.state.toPin });
   }, [location.state]);
 
+  // Scroll to top on step change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
+
   const renderStep = () => {
     switch(step) {
       case 1: return <StepAddress />;

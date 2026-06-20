@@ -866,7 +866,9 @@ input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius:
   /* Complaint page contact row */
   .booking-layout { grid-template-columns: 1fr; }
 
-  /* Hero tracking form */
-  .hero form { flex-direction: column !important; }
-  .hero form select { width: 100% !important; }
+  /* Step forms */
+  .step-nav { flex-direction: column-reverse; gap: var(--space-md); }
+  .step-nav .btn { width: 100%; justify-content: center; }
+  .form-row[style*="grid-template-columns: 1fr 1fr 1fr"] { grid-template-columns: 1fr; gap: var(--space-sm); }
+  .step-form-card { padding: var(--space-md); }
 }
