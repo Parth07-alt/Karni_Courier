@@ -41,6 +41,16 @@ const mailAttachments = [
   }
 ];
 
+// ─── Helper: Get Dynamic Base URL ────────────────────────────
+const getBaseUrl = (req) => {
+  if (req.headers.origin) {
+    return req.headers.origin;
+  }
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  const proto = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+  return `${proto}://${host}`;
+};
+
 // ─── Premium HTML Email Template Helper ──────────────────────
 const buildEmailHTML = ({ heading, bodyLines, button }) => {
   return `
@@ -133,7 +143,7 @@ const buildEmailHTML = ({ heading, bodyLines, button }) => {
 };
 
 // ─── Tracking Helper ─────────────────────────────────────────
-const getTrackingUrl = (cargoCompany, awb) => {
+const getTrackingUrl = (cargoCompany, awb, websiteUrl) => {
   const company = cargoCompany.toLowerCase();
   if (company.includes('delhivery')) return `https://www.delhivery.com/track/package/${awb}`;
   if (company.includes('dtdc')) return `https://www.dtdc.in/tracking/track-your-shipment.html`;
@@ -141,7 +151,7 @@ const getTrackingUrl = (cargoCompany, awb) => {
   if (company.includes('mahabali')) return `https://www.trackingmore.com/shree-mahabali-express-tracking.html?number=${awb}`;
   if (company.includes('dhl')) return `https://www.dhl.com/global-en/home/tracking/tracking-express.html?submit=1&tracking-id=${awb}`;
   if (company.includes('bluedart')) return `https://www.bluedart.com/tracking`;
-  return `${WEBSITE_URL}/track`;
+  return `${websiteUrl}/track`;
 };
 
 // ─── API: Order Confirmation Email ──────────────────────────
@@ -184,6 +194,9 @@ app.post('/api/send-pickup-email', async (req, res) => {
   const { to_email, to_name, awb_number, cargo_company } = req.body;
   if (!to_email) return res.status(400).json({ error: 'to_email is required' });
 
+  const websiteUrl = getBaseUrl(req);
+  const trackingUrl = getTrackingUrl(cargo_company, awb_number, websiteUrl);
+
   try {
     const html = buildEmailHTML({
       heading: '📦 Shipment Dispatched!',
@@ -206,7 +219,7 @@ app.post('/api/send-pickup-email', async (req, res) => {
       ],
       button: {
         text: 'Track Your Shipment Live',
-        url: `${WEBSITE_URL}/track`
+        url: trackingUrl
       }
     });
 
@@ -230,6 +243,8 @@ app.post('/api/send-cancel-email', async (req, res) => {
   const { to_email, to_name, awb_number, cancel_reason } = req.body;
   if (!to_email) return res.status(400).json({ error: 'to_email is required' });
 
+  const websiteUrl = getBaseUrl(req);
+
   try {
     const html = buildEmailHTML({
       heading: '❌ Booking Cancelled',
@@ -252,7 +267,7 @@ app.post('/api/send-cancel-email', async (req, res) => {
       ],
       button: {
         text: 'Book a New Pickup',
-        url: `${WEBSITE_URL}/`
+        url: `${websiteUrl}/`
       }
     });
 
