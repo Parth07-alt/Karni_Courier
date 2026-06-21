@@ -20,10 +20,10 @@ const getRedirectUrl = (company, awb) => {
 const Track = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const idFromQuery = searchParams.get('id') || '';
-  
+
   const [trackingId, setTrackingId] = useState(idFromQuery);
   const [cargoCompany, setCargoCompany] = useState('karni');
-  
+
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -42,7 +42,7 @@ const Track = () => {
     if (order && order.cargoAwb) {
       setPartnerTrackingId(order.cargoAwb);
       const company = (order.cargoCompany || 'mark').toLowerCase();
-      
+
       let matchedValue = 'mark';
       if (company.includes('dtdc')) matchedValue = 'dtdc';
       else if (company.includes('maruti')) matchedValue = 'maruti';
@@ -50,7 +50,7 @@ const Track = () => {
       else if (company.includes('bluedart')) matchedValue = 'bluedart';
       else if (company.includes('delhivery')) matchedValue = 'delhivery';
       else if (company.includes('mahabali')) matchedValue = 'mahabali';
-      
+
       setPartnerCompany(matchedValue);
     }
   }, [order]);
@@ -69,7 +69,7 @@ const Track = () => {
       // 1. Search by Karni Tracking ID (awbNumber)
       const qKarni = query(collection(db, 'orders'), where('awbNumber', '==', searchTerm.toUpperCase()));
       const snapKarni = await getDocs(qKarni);
-      
+
       if (!snapKarni.empty) {
         orderDoc = snapKarni.docs[0];
       } else {
@@ -81,10 +81,10 @@ const Track = () => {
           matchedByCargo = true;
         }
       }
-      
+
       if (orderDoc) {
         const docData = orderDoc.data();
-        
+
         // Redirect if they explicitly searched using the Cargo AWB AND they were using "Karni ID" in the dropdown
         if (matchedByCargo && docData.status === 'pickedup' && docData.cargoCompany) {
           const redirectUrl = getRedirectUrl(docData.cargoCompany, docData.cargoAwb);
@@ -120,7 +120,7 @@ const Track = () => {
         return;
       }
     }
-    
+
     // Otherwise, it's a Karni ID, so we search our database
     handleSearch(trackingId);
   };
@@ -139,13 +139,13 @@ const Track = () => {
 
   return (
     <div className="page-wrapper" style={{ background: 'var(--off-white)', minHeight: 'calc(100vh - var(--navbar-height))' }}>
-      
+
       {/* Order Status Display at the top if exists */}
       {order && (
         <div className="container" style={{ padding: 'var(--space-3xl) var(--container-px)' }}>
           <h2 style={{ marginBottom: 'var(--space-xl)', textAlign: 'center', fontSize: '2rem' }}>Shipment Status</h2>
-          
-          <div className="track-layout">
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 'var(--space-xl)' }} className="booking-layout">
             {/* Timeline Column */}
             <div className="card track-result-card">
               <div className="flex-between mb-lg">
@@ -156,10 +156,10 @@ const Track = () => {
                   <span className="badge badge-cancelled" style={{ fontSize: '0.875rem', padding: '6px 14px' }}>Cancelled</span>
                 )}
               </div>
-              
-              <StatusTimeline 
-                currentStatus={order.status} 
-                timeline={order.timeline || []} 
+
+              <StatusTimeline
+                currentStatus={order.status}
+                timeline={order.timeline || []}
               />
             </div>
 
@@ -219,9 +219,9 @@ const Track = () => {
               <p style={{ color: 'var(--text-gray)', marginBottom: 'var(--space-lg)' }}>
                 Your parcel was forwarded via <strong>{order.cargoCompany}</strong>. Enter your Partner AWB number (<strong>{order.cargoAwb}</strong>) below to view live tracking.
               </p>
-              
+
               <form className="hero-track-form" onSubmit={onSubmitPartner} style={{ maxWidth: 700, margin: '0 auto' }}>
-                <select 
+                <select
                   className="form-input hero-track-select"
                   value={partnerCompany}
                   onChange={(e) => setPartnerCompany(e.target.value)}
@@ -238,9 +238,9 @@ const Track = () => {
 
                 <div className="input-icon-wrap" style={{ flex: 1, margin: 0, boxShadow: 'none' }}>
                   <i className="fa-solid fa-magnifying-glass" style={{ color: 'var(--text-gray)' }} />
-                  <input 
-                    type="text" 
-                    className="form-input" 
+                  <input
+                    type="text"
+                    className="form-input"
                     style={{ padding: '14px 16px 14px 44px', border: '1px solid var(--border)' }}
                     placeholder="Enter Partner AWB Number"
                     value={partnerTrackingId}
@@ -265,9 +265,9 @@ const Track = () => {
             <p style={{ fontSize: '1.1rem', color: 'var(--text-light)', marginBottom: 'var(--space-2xl)' }}>
               Enter your Tracking ID or Partner AWB number to get real-time status updates
             </p>
-            
+
             <form className="hero-track-form" onSubmit={onSubmitMain} style={{ maxWidth: 800, margin: '0 auto' }}>
-              <select 
+              <select
                 className="form-input hero-track-select"
                 value={cargoCompany}
                 onChange={(e) => setCargoCompany(e.target.value)}
@@ -285,9 +285,9 @@ const Track = () => {
 
               <div className="input-icon-wrap" style={{ flex: 1, margin: 0, boxShadow: 'none' }}>
                 <i className="fa-solid fa-magnifying-glass" style={{ color: 'var(--text-gray)' }} />
-                <input 
-                  type="text" 
-                  className="form-input" 
+                <input
+                  type="text"
+                  className="form-input"
                   style={{ padding: '16px 16px 16px 44px', fontSize: '1.0625rem', border: 'none' }}
                   placeholder={cargoCompany === 'karni' ? "Enter Tracking ID..." : "Enter Partner AWB..."}
                   value={trackingId}

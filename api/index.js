@@ -157,14 +157,13 @@ app.post('/api/send-order-email', async (req, res) => {
       ],
     });
 
-    // Fire and forget email sending to prevent blocking response
-    transporter.sendMail({
+    await transporter.sendMail({
       from: `"${COMPANY_NAME}" <${SMTP_USER}>`,
       to: to_email,
       subject: `Booking Confirmed — AWB: ${awb_number || 'N/A'} | ${COMPANY_NAME}`,
       html,
       attachments: mailAttachments
-    }).catch(err => console.error('Background email send error:', err));
+    });
 
     res.json({ success: true, message: 'Order confirmation email sent' });
   } catch (err) {
@@ -206,13 +205,13 @@ app.post('/api/send-pickup-email', async (req, res) => {
       }
     });
 
-    transporter.sendMail({
+    await transporter.sendMail({
       from: `"${COMPANY_NAME}" <${SMTP_USER}>`,
       to: to_email,
       subject: `Shipment Dispatched via ${cargo_company || 'Partner'} | ${COMPANY_NAME}`,
       html,
       attachments: mailAttachments
-    }).catch(err => console.error('Background email send error:', err));
+    });
 
     res.json({ success: true, message: 'Pickup confirmation email sent' });
   } catch (err) {
@@ -252,7 +251,7 @@ app.post('/api/send-cancel-email', async (req, res) => {
       }
     });
 
-    transporter.sendMail({
+    await transporter.sendMail({
       from: `"${COMPANY_NAME}" <${SMTP_USER}>`,
       to: to_email,
       subject: `Booking Cancelled — AWB: ${awb_number || 'N/A'} | ${COMPANY_NAME}`,
