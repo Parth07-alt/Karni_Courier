@@ -5,20 +5,55 @@ import { db } from '../firebase';
 import StatusTimeline from '../components/StatusTimeline';
 import { formatDateTime } from '../utils/awbGenerator';
 
+const getRedirectUrl = (company, awb) => {
+  company = company.toLowerCase();
+  if (company === 'mark' || company.includes('mark')) return `http://crm.markerp.in/Frm_DocTrackWeb.aspx?docno=${awb}`;
+  if (company === 'dtdc' || company.includes('dtdc')) return 'https://www.dtdc.com/track-your-shipment/';
+  if (company === 'maruti' || company.includes('maruti')) return 'http://marutiair.com/tracking.html';
+  if (company === 'dhl' || company.includes('dhl')) return `https://www.dhl.com/in-en/home/tracking.html?tracking-id=${awb}`;
+  if (company === 'bluedart' || company.includes('bluedart')) return 'https://www.bluedart.com/tracking';
+  if (company.includes('delhivery')) return `https://www.delhivery.com/track/package/${awb}`;
+  if (company.includes('mahabali')) return `https://www.trackingmore.com/shree-mahabali-express-tracking.html?number=${awb}`;
+  return '';
+};
+
 const Track = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const idFromQuery = searchParams.get('id') || '';
   
   const [trackingId, setTrackingId] = useState(idFromQuery);
+  const [cargoCompany, setCargoCompany] = useState('karni');
+  
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // For the bottom tracking form inside the order detail view
+  const [partnerTrackingId, setPartnerTrackingId] = useState('');
+  const [partnerCompany, setPartnerCompany] = useState('mark');
 
   useEffect(() => {
     if (idFromQuery) {
       handleSearch(idFromQuery);
     }
   }, [idFromQuery]);
+
+  useEffect(() => {
+    if (order && order.cargoAwb) {
+      setPartnerTrackingId(order.cargoAwb);
+      const company = (order.cargoCompany || 'mark').toLowerCase();
+      
+      let matchedValue = 'mark';
+      if (company.includes('dtdc')) matchedValue = 'dtdc';
+      else if (company.includes('maruti')) matchedValue = 'maruti';
+      else if (company.includes('dhl')) matchedValue = 'dhl';
+      else if (company.includes('bluedart')) matchedValue = 'bluedart';
+      else if (company.includes('delhivery')) matchedValue = 'delhivery';
+      else if (company.includes('mahabali')) matchedValue = 'mahabali';
+      
+      setPartnerCompany(matchedValue);
+    }
+  }, [order]);
 
   const handleSearch = async (awb) => {
     if (!awb.trim()) return;
@@ -50,24 +85,9 @@ const Track = () => {
       if (orderDoc) {
         const docData = orderDoc.data();
         
-        // Redirect if they explicitly searched using the Cargo AWB
+        // Redirect if they explicitly searched using the Cargo AWB AND they were using "Karni ID" in the dropdown
         if (matchedByCargo && docData.status === 'pickedup' && docData.cargoCompany) {
-          const company = docData.cargoCompany.toLowerCase();
-          const trackingAwb = docData.cargoAwb;
-          let redirectUrl = '';
-          
-          if (company === 'mark') {
-            redirectUrl = `http://crm.markerp.in/Frm_DocTrackWeb.aspx?docno=${trackingAwb}`;
-          } else if (company === 'dtdc') {
-            redirectUrl = 'https://www.dtdc.com/track-your-shipment/';
-          } else if (company === 'maruti') {
-            redirectUrl = 'http://marutiair.com/tracking.html';
-          } else if (company === 'dhl') {
-            redirectUrl = `https://www.dhl.com/in-en/home/tracking.html?tracking-id=${trackingAwb}`;
-          } else if (company === 'bluedart') {
-            redirectUrl = 'https://www.bluedart.com/tracking';
-          }
-
+          const redirectUrl = getRedirectUrl(docData.cargoCompany, docData.cargoAwb);
           if (redirectUrl) {
             window.location.href = redirectUrl;
             return;
@@ -89,9 +109,32 @@ const Track = () => {
     }
   };
 
-  const onSubmit = (e) => {
+  const onSubmitMain = (e) => {
     e.preventDefault();
+    if (!trackingId.trim()) return;
+
+    if (cargoCompany !== 'karni') {
+      const redirectUrl = getRedirectUrl(cargoCompany, trackingId.trim());
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+        return;
+      }
+    }
+    
+    // Otherwise, it's a Karni ID, so we search our database
     handleSearch(trackingId);
+  };
+
+  const onSubmitPartner = (e) => {
+    e.preventDefault();
+    if (!partnerTrackingId.trim()) return;
+
+    const redirectUrl = getRedirectUrl(partnerCompany, partnerTrackingId.trim());
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    } else {
+      alert("Tracking link for this partner is not configured yet.");
+    }
   };
 
   return (
@@ -102,7 +145,7 @@ const Track = () => {
         <div className="container" style={{ padding: 'var(--space-3xl) var(--container-px)' }}>
           <h2 style={{ marginBottom: 'var(--space-xl)', textAlign: 'center', fontSize: '2rem' }}>Shipment Status</h2>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 'var(--space-xl)' }} className="booking-layout">
+          <div className="track-layout">
             {/* Timeline Column */}
             <div className="card track-result-card">
               <div className="flex-between mb-lg">
@@ -176,16 +219,32 @@ const Track = () => {
               <p style={{ color: 'var(--text-gray)', marginBottom: 'var(--space-lg)' }}>
                 Your parcel was forwarded via <strong>{order.cargoCompany}</strong>. Enter your Partner AWB number (<strong>{order.cargoAwb}</strong>) below to view live tracking.
               </p>
-              <form className="track-search-box" onSubmit={onSubmit} style={{ maxWidth: 500, margin: '0 auto', display: 'flex', gap: 'var(--space-sm)' }}>
+              
+              <form className="hero-track-form" onSubmit={onSubmitPartner} style={{ maxWidth: 700, margin: '0 auto' }}>
+                <select 
+                  className="form-input hero-track-select"
+                  value={partnerCompany}
+                  onChange={(e) => setPartnerCompany(e.target.value)}
+                  style={{ border: '1px solid var(--border)', background: 'var(--white)', color: 'var(--text-dark)' }}
+                >
+                  <option value="mark">Mark</option>
+                  <option value="dtdc">DTDC</option>
+                  <option value="maruti">Maruti</option>
+                  <option value="dhl">DHL</option>
+                  <option value="bluedart">BlueDart</option>
+                  <option value="delhivery">Delhivery</option>
+                  <option value="mahabali">Shree Mahabali</option>
+                </select>
+
                 <div className="input-icon-wrap" style={{ flex: 1, margin: 0, boxShadow: 'none' }}>
-                  <i className="fa-solid fa-magnifying-glass" />
+                  <i className="fa-solid fa-magnifying-glass" style={{ color: 'var(--text-gray)' }} />
                   <input 
                     type="text" 
                     className="form-input" 
-                    style={{ padding: '14px 16px 14px 44px' }}
+                    style={{ padding: '14px 16px 14px 44px', border: '1px solid var(--border)' }}
                     placeholder="Enter Partner AWB Number"
-                    value={trackingId}
-                    onChange={e => setTrackingId(e.target.value)}
+                    value={partnerTrackingId}
+                    onChange={e => setPartnerTrackingId(e.target.value)}
                     required
                   />
                 </div>
@@ -200,25 +259,43 @@ const Track = () => {
 
       {/* Default Hero Search (only show if NO order is loaded) */}
       {!order && (
-        <section className="track-hero">
-          <div className="container">
-            <h1>Track Your Shipment</h1>
-            <p>Enter your Tracking ID or Partner AWB number to get real-time status updates</p>
+        <section className="track-hero" style={{ background: 'var(--primary-dark)', padding: 'var(--space-4xl) 0', color: 'var(--white)' }}>
+          <div className="container" style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '3rem', marginBottom: 'var(--space-sm)' }}>Track Your Shipment</h1>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-light)', marginBottom: 'var(--space-2xl)' }}>
+              Enter your Tracking ID or Partner AWB number to get real-time status updates
+            </p>
             
-            <form className="track-search-box" onSubmit={onSubmit}>
-              <div className="input-icon-wrap" style={{ flex: 1 }}>
-                <i className="fa-solid fa-magnifying-glass" />
+            <form className="hero-track-form" onSubmit={onSubmitMain} style={{ maxWidth: 800, margin: '0 auto' }}>
+              <select 
+                className="form-input hero-track-select"
+                value={cargoCompany}
+                onChange={(e) => setCargoCompany(e.target.value)}
+                style={{ border: 'none', background: 'var(--white)', color: 'var(--text-dark)' }}
+              >
+                <option value="karni">Karni ID</option>
+                <option value="mark">Mark</option>
+                <option value="dtdc">DTDC</option>
+                <option value="maruti">Maruti</option>
+                <option value="dhl">DHL</option>
+                <option value="bluedart">BlueDart</option>
+                <option value="delhivery">Delhivery</option>
+                <option value="mahabali">Shree Mahabali</option>
+              </select>
+
+              <div className="input-icon-wrap" style={{ flex: 1, margin: 0, boxShadow: 'none' }}>
+                <i className="fa-solid fa-magnifying-glass" style={{ color: 'var(--text-gray)' }} />
                 <input 
                   type="text" 
                   className="form-input" 
-                  style={{ padding: '16px 16px 16px 44px', fontSize: '1.0625rem' }}
-                  placeholder="Enter Tracking ID or Partner AWB..."
+                  style={{ padding: '16px 16px 16px 44px', fontSize: '1.0625rem', border: 'none' }}
+                  placeholder={cargoCompany === 'karni' ? "Enter Tracking ID..." : "Enter Partner AWB..."}
                   value={trackingId}
                   onChange={e => setTrackingId(e.target.value)}
                   required
                 />
               </div>
-              <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+              <button type="submit" className="btn btn-primary" style={{ margin: 0, padding: '0 var(--space-2xl)', fontSize: '1.0625rem' }} disabled={loading}>
                 {loading ? 'Searching...' : 'Track Parcel'}
               </button>
             </form>

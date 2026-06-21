@@ -873,3 +873,9 @@ input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius:
   .form-row[style*="grid-template-columns: 1fr 1fr 1fr"] { grid-template-columns: 1fr; gap: var(--space-sm); }
   .step-form-card { padding: var(--space-md); }
 }
+
+.track-layout { display: grid; grid-template-columns: 1fr 340px; gap: var(--space-xl); }
+@media (max-width: 1024px) { .track-layout { grid-template-columns: 1fr; } }
+
+.complaint-layout { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+@media (max-width: 768px) { .complaint-layout { grid-template-columns: 1fr; } }

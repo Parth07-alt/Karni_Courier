@@ -121,7 +121,7 @@ const Complaint = () => {
             </div>
 
             {/* Contact Info Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }} className="booking-layout">
+            <div className="complaint-layout">
               <div className="form-group mb-lg">
                 <label className="form-label" htmlFor="contactPhone">Contact Phone</label>
                 <input id="contactPhone" name="contactPhone" type="tel" className="form-input" placeholder="Your phone number" value={form.contactPhone} onChange={handleChange} />

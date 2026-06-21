@@ -18,7 +18,7 @@ const SMTP_PASS = process.env.SMTP_PASS || '';
 const ADMIN_CONTACT_1 = process.env.ADMIN_CONTACT || '+91 9106917219';
 const ADMIN_CONTACT_2 = '+91 8306396840';
 const COMPANY_NAME = 'Karni Air Courier & Logistics';
-const WEBSITE_URL = 'https://karni-courier-e561c.firebaseapp.com';
+const WEBSITE_URL = 'https://karni-courier.vercel.app';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -40,16 +40,6 @@ const mailAttachments = [
     cid: 'karnilogo' // same cid value as in the html img src
   }
 ];
-
-// ─── Helper: Get Dynamic Base URL ────────────────────────────
-const getBaseUrl = (req) => {
-  if (req.headers.origin) {
-    return req.headers.origin;
-  }
-  const host = req.headers['x-forwarded-host'] || req.headers.host;
-  const proto = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-  return `${proto}://${host}`;
-};
 
 // ─── Premium HTML Email Template Helper ──────────────────────
 const buildEmailHTML = ({ heading, bodyLines, button }) => {
@@ -143,15 +133,8 @@ const buildEmailHTML = ({ heading, bodyLines, button }) => {
 };
 
 // ─── Tracking Helper ─────────────────────────────────────────
-const getTrackingUrl = (cargoCompany, awb, websiteUrl) => {
-  const company = cargoCompany.toLowerCase();
-  if (company.includes('delhivery')) return `https://www.delhivery.com/track/package/${awb}`;
-  if (company.includes('dtdc')) return `https://www.dtdc.in/tracking/track-your-shipment.html`;
-  if (company.includes('mark')) return `https://www.trackingmore.com/mark-express-tracking.html?number=${awb}`;
-  if (company.includes('mahabali')) return `https://www.trackingmore.com/shree-mahabali-express-tracking.html?number=${awb}`;
-  if (company.includes('dhl')) return `https://www.dhl.com/global-en/home/tracking/tracking-express.html?submit=1&tracking-id=${awb}`;
-  if (company.includes('bluedart')) return `https://www.bluedart.com/tracking`;
-  return `${websiteUrl}/track`;
+const getTrackingUrl = (cargoCompany, awb) => {
+  return `${WEBSITE_URL}/`;
 };
 
 // ─── API: Order Confirmation Email ──────────────────────────
@@ -174,18 +157,19 @@ app.post('/api/send-order-email', async (req, res) => {
       ],
     });
 
-    await transporter.sendMail({
+    // Fire and forget email sending to prevent blocking response
+    transporter.sendMail({
       from: `"${COMPANY_NAME}" <${SMTP_USER}>`,
       to: to_email,
       subject: `Booking Confirmed — AWB: ${awb_number || 'N/A'} | ${COMPANY_NAME}`,
       html,
       attachments: mailAttachments
-    });
+    }).catch(err => console.error('Background email send error:', err));
 
     res.json({ success: true, message: 'Order confirmation email sent' });
   } catch (err) {
-    console.error('Email send error:', err);
-    res.status(500).json({ error: 'Failed to send email' });
+    console.error('Email preparation error:', err);
+    res.status(500).json({ error: 'Failed to prepare email' });
   }
 });
 
@@ -194,8 +178,7 @@ app.post('/api/send-pickup-email', async (req, res) => {
   const { to_email, to_name, awb_number, cargo_company } = req.body;
   if (!to_email) return res.status(400).json({ error: 'to_email is required' });
 
-  const websiteUrl = getBaseUrl(req);
-  const trackingUrl = getTrackingUrl(cargo_company, awb_number, websiteUrl);
+  const trackingUrl = getTrackingUrl(cargo_company, awb_number);
 
   try {
     const html = buildEmailHTML({
@@ -223,18 +206,18 @@ app.post('/api/send-pickup-email', async (req, res) => {
       }
     });
 
-    await transporter.sendMail({
+    transporter.sendMail({
       from: `"${COMPANY_NAME}" <${SMTP_USER}>`,
       to: to_email,
       subject: `Shipment Dispatched via ${cargo_company || 'Partner'} | ${COMPANY_NAME}`,
       html,
       attachments: mailAttachments
-    });
+    }).catch(err => console.error('Background email send error:', err));
 
     res.json({ success: true, message: 'Pickup confirmation email sent' });
   } catch (err) {
-    console.error('Email send error:', err);
-    res.status(500).json({ error: 'Failed to send email' });
+    console.error('Email preparation error:', err);
+    res.status(500).json({ error: 'Failed to prepare email' });
   }
 });
 
@@ -242,8 +225,6 @@ app.post('/api/send-pickup-email', async (req, res) => {
 app.post('/api/send-cancel-email', async (req, res) => {
   const { to_email, to_name, awb_number, cancel_reason } = req.body;
   if (!to_email) return res.status(400).json({ error: 'to_email is required' });
-
-  const websiteUrl = getBaseUrl(req);
 
   try {
     const html = buildEmailHTML({
@@ -267,11 +248,11 @@ app.post('/api/send-cancel-email', async (req, res) => {
       ],
       button: {
         text: 'Book a New Pickup',
-        url: `${websiteUrl}/`
+        url: `${WEBSITE_URL}/`
       }
     });
 
-    await transporter.sendMail({
+    transporter.sendMail({
       from: `"${COMPANY_NAME}" <${SMTP_USER}>`,
       to: to_email,
       subject: `Booking Cancelled — AWB: ${awb_number || 'N/A'} | ${COMPANY_NAME}`,
@@ -292,8 +273,8 @@ app.get('/api/health', (req, res) => {
 
 // Start the server if running locally
 if (process.env.NODE_ENV !== 'production') {
-  const PORT_NUM = process.env.PORT || 3001;
-  app.listen(PORT_NUM, () => {
+  const PORT_NUM = process.env.PORT || 3005;
+  app.listen(PORT_NUM, '0.0.0.0', () => {
     console.log(`\n🚀 Karni Email Server running locally on port ${PORT_NUM}`);
   });
 }

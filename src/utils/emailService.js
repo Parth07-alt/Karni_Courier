@@ -3,7 +3,7 @@
  * which uses Nodemailer to send emails via Gmail SMTP.
  */
 
-const API_BASE = 'http://localhost:3001';
+const API_BASE = '';
 
 /**
  * Sends an order confirmation greeting email to the customer.
